@@ -1,4 +1,5 @@
-import { dbAll, dbRun } from '../db';
+import dbModule from '../db.js';
+const { dbAll, dbRun } = dbModule;
 async function userRoutes(fastify) {
   fastify.addHook('preHandler', async (request, reply) => {
     try {

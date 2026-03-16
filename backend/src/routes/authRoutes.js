@@ -1,6 +1,8 @@
 import bcrypt from 'bcryptjs';
-import { dbGet, dbRun } from '../db';
-import { sendCode } from '../plugins/mailerPlugin';
+import dbModule from '../db.js';
+const { dbGet, dbRun } = dbModule;
+import mailerPlugin from '../plugins/mailerPlugin.js';
+const { sendCode } = mailerPlugin;
 function generateCode() {
   return String(Math.floor(100000 + Math.random() * 900000));
 }

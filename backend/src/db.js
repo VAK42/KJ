@@ -1,6 +1,10 @@
 import initSqlJs from 'sql.js';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import bcrypt from 'bcryptjs';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const dbPath = join(__dirname, '..', 'data', 'kj.db');
 const dataDir = join(__dirname, '..', 'data');
 if (!existsSync(dataDir)) mkdirSync(dataDir, { recursive: true });
@@ -36,6 +40,14 @@ async function getDb() {
       FOREIGN KEY (userId) REFERENCES users(id)
     );
   `);
+  const em='vutrandangkhoa7@gmail.com';
+  const stmt=db.prepare('SELECT id FROM users WHERE email=?');
+  stmt.bind([em]);
+  const hasUser=stmt.step();
+  stmt.free();
+  if(!hasUser){
+    db.run('INSERT INTO users (email,passwordHash,isVerified) VALUES (?,?,?)',[em,bcrypt.hashSync('password',12),1]);
+  }
   persist();
   return db;
 }
