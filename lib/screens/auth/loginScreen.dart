@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../appTheme.dart';
+import 'package:flutter/material.dart';
 import '../../providers/authProvider.dart';
 import '../../services/authService.dart';
 import '../../widgets/errorBanner.dart';
+import '../../appTheme.dart';
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
   @override
@@ -81,14 +81,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const SizedBox(height: 16),
                   ErrorBanner(message: _error!),
                 ],
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () => context.push('/auth/reset'),
-                    child: const Text('Forgot Password?', style: TextStyle(color: AppTheme.accentLight, fontSize: 13)),
-                  ),
-                ),
                 const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: _loading ? null : _submit,

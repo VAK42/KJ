@@ -29,4 +29,26 @@ class StreakService {
     final results = HiveService.getQuizResults();
     return results.map((r) => (r['date'] as String).substring(0, 10)).toSet().toList()..sort();
   }
+  static Future<void> recalculateStreaksFromHistory() async {
+    final dates = getStudyDates();
+    if (dates.isEmpty) {
+      await HiveService.streakBox.clear();
+      return;
+    }
+    int streak = 1;
+    int longest = 1;
+    for (int i = 1; i < dates.length; i++) {
+      final prevDate = DateTime.parse('${dates[i - 1]}T00:00:00Z');
+      final currDate = DateTime.parse('${dates[i]}T00:00:00Z');
+      if (currDate.difference(prevDate).inDays == 1) {
+        streak++;
+      } else {
+        streak = 1;
+      }
+      if (streak > longest) longest = streak;
+    }
+    await HiveService.streakBox.put(_lastStudyKey, dates.last);
+    await HiveService.streakBox.put(_currentStreakKey, streak);
+    await HiveService.streakBox.put(_longestStreakKey, longest);
+  }
 }

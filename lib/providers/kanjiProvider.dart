@@ -1,8 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../data/kanjiData.dart';
 import '../models/kanjiModel.dart';
-final searchQueryProvider = StateProvider<String>((ref) => '');
-final viewModeProvider = StateProvider<bool>((ref) => true);
+import '../data/kanjiData.dart';
+class SearchQueryNotifier extends Notifier<String> {
+  @override
+  String build() => '';
+  void updateQuery(String q) => state = q;
+}
+final searchQueryProvider = NotifierProvider<SearchQueryNotifier, String>(SearchQueryNotifier.new);
+class ViewModeNotifier extends Notifier<bool> {
+  @override
+  bool build() => true;
+  void toggle() => state = !state;
+}
+final viewModeProvider = NotifierProvider<ViewModeNotifier, bool>(ViewModeNotifier.new);
 final filteredKanjiProvider = Provider.family<AsyncValue<List<KanjiModel>>, String>((ref, level) {
   final query = ref.watch(searchQueryProvider).toLowerCase();
   return ref.watch(kanjiByLevelProvider(level)).whenData((list) {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' hide Ink;
-import 'package:go_router/go_router.dart';
 import 'package:google_mlkit_digital_ink_recognition/google_mlkit_digital_ink_recognition.dart';
+import 'package:go_router/go_router.dart';
 import '../../appTheme.dart';
 class WritingPracticeScreen extends StatefulWidget {
   final String character;
@@ -29,6 +29,12 @@ class _WritingPracticeScreenState extends State<WritingPracticeScreen> {
     if (_ink.strokes.isEmpty) return;
     setState(() { _isRecognizing = true; _result = null; _correct = false; });
     try {
+      final modelManager = DigitalInkRecognizerModelManager();
+      final isDownloaded = await modelManager.isModelDownloaded('ja');
+      if (!isDownloaded) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Downloading Japanese Ink Model...', style: TextStyle(color: AppTheme.textPrimary)), backgroundColor: AppTheme.card));
+        await modelManager.downloadModel('ja');
+      }
       final cands = await _recognizer.recognize(_ink);
       final r = cands.isNotEmpty ? cands.first.text : null;
       setState(() {

@@ -1,12 +1,12 @@
 import 'dart:math';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../appTheme.dart';
-import '../../data/kanjiData.dart';
-import '../../models/kanjiModel.dart';
+import 'package:flutter/material.dart';
 import '../../services/hiveService.dart';
 import '../../widgets/quizOption.dart';
+import '../../models/kanjiModel.dart';
+import '../../data/kanjiData.dart';
+import '../../appTheme.dart';
 class QuizScreen extends ConsumerStatefulWidget {
   final String? level;
   const QuizScreen({super.key, this.level});
@@ -26,19 +26,18 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _initQuiz());
   }
   void _initQuiz() {
-    final allKanji = ref.read(kanjiDataProvider).valueOrNull ?? {};
+    final allKanji = ref.read(kanjiDataProvider).value ?? {};
     if (allKanji.isEmpty) return;
-    if (widget.level != null && allKanji.containsKey(widget.level)) {
-      _pool = List.from(allKanji[widget.level]!);
+    if (_selectedLevel != 'Mixed' && allKanji.containsKey(_selectedLevel)) {
+      _pool = List.from(allKanji[_selectedLevel]!);
     } else {
       _pool = allKanji.values.expand((e) => e).toList();
     }
     if (_pool.length < 4) return;
     _pool.shuffle(_random);
-    _questions = _pool.take(10).toList();
+    _questions = _pool.take(_questionCount).toList();
     _loadQuestion();
   }
   void _loadQuestion() {
@@ -100,8 +99,54 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
       ),
     );
   }
+  bool _started = false;
+  String _selectedLevel = 'Mixed';
+  int _questionCount = 10;
   @override
   Widget build(BuildContext context) {
+    if (!_started) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Quiz Settings')),
+        body: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text('Select Level', style: TextStyle(color: AppTheme.textMuted)),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                initialValue: _selectedLevel,
+                dropdownColor: AppTheme.card,
+                decoration: const InputDecoration(border: OutlineInputBorder()),
+                items: ['Mixed', 'N5', 'N4', 'N3', 'N2', 'N1'].map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(color: AppTheme.textPrimary)))).toList(),
+                onChanged: (v) => setState(() => _selectedLevel = v!),
+              ),
+              const SizedBox(height: 24),
+              const Text('Number Of Questions', style: TextStyle(color: AppTheme.textMuted)),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<int>(
+                initialValue: _questionCount,
+                dropdownColor: AppTheme.card,
+                decoration: const InputDecoration(border: OutlineInputBorder()),
+                items: [10, 20, 30, 50].map((e) => DropdownMenuItem(value: e, child: Text('$e Questions', style: const TextStyle(color: AppTheme.textPrimary)))).toList(),
+                onChanged: (v) => setState(() => _questionCount = v!),
+              ),
+              const SizedBox(height: 48),
+              ElevatedButton.icon(
+                onPressed: () {
+                  setState(() => _started = true);
+                  _initQuiz();
+                },
+                icon: const Icon(Icons.play_arrow_rounded),
+                label: const Text('Start Quiz'),
+                style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     if (_questions.isEmpty) return Scaffold(appBar: AppBar(), body: const Center(child: CircularProgressIndicator()));
     final q = _questions[_qIdx];
     final progress = (_qIdx) / _questions.length;

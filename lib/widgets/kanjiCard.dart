@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../appTheme.dart';
 import '../models/kanjiModel.dart';
+import '../appTheme.dart';
 class KanjiCard extends StatelessWidget {
   final KanjiModel kanji;
   final Color levelColor;

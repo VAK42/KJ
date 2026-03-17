@@ -1,7 +1,9 @@
-import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../appConfig.dart';
+import 'package:dio/dio.dart';
+import 'streakService.dart';
+import 'hiveService.dart';
 import '../models/userModel.dart';
+import '../appConfig.dart';
 class AuthService {
   AuthService._();
   static final Dio _dio = Dio(BaseOptions(
@@ -26,11 +28,8 @@ class AuthService {
         handler.next(error);
       },
     ));
-  static Future<void> register(String email, String password) async {
-    await _dio.post('/auth/register', data: {'email': email, 'password': password});
-  }
-  static Future<UserModel> verifyEmail(String email, String code) async {
-    final res = await _dio.post('/auth/verify', data: {'email': email, 'code': code});
+  static Future<UserModel> register(String email, String password) async {
+    final res = await _dio.post('/auth/register', data: {'email': email, 'password': password});
     final user = UserModel.fromJson(res.data as Map<String, dynamic>);
     await _persistUser(user);
     return user;
@@ -40,12 +39,6 @@ class AuthService {
     final user = UserModel.fromJson(res.data as Map<String, dynamic>);
     await _persistUser(user);
     return user;
-  }
-  static Future<void> forgotPassword(String email) async {
-    await _dio.post('/auth/forgotPassword', data: {'email': email});
-  }
-  static Future<void> resetPassword(String email, String code, String newPassword) async {
-    await _dio.post('/auth/resetPassword', data: {'email': email, 'code': code, 'newPassword': newPassword});
   }
   static Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
@@ -58,6 +51,22 @@ class AuthService {
     final email = prefs.getString('userEmail');
     if (token == null || email == null) return null;
     return UserModel(email: email, token: token);
+  }
+  static Future<void> syncProgress() async {
+    try {
+      final res = await _dio.get('/user/quizResults');
+      final List data = res.data as List;
+      await HiveService.quizBox.clear();
+      for (final r in data) {
+        await HiveService.quizBox.add({'level': r['level'], 'score': r['score'], 'total': r['total'], 'date': r['date']});
+      }
+      await StreakService.recalculateStreaksFromHistory();
+    } catch (_) {}
+  }
+  static Future<void> pushQuizResult(String level, int score, int total, String date) async {
+    try {
+      await _dio.post('/user/quizResults', data: {'level': level, 'score': score, 'total': total, 'date': date});
+    } catch (_) {}
   }
   static Future<void> _persistUser(UserModel user) async {
     final prefs = await SharedPreferences.getInstance();

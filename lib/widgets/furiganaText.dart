@@ -3,15 +3,13 @@ import '../appTheme.dart';
 class _FuriganaText extends StatelessWidget {
   final String reading;
   final String text;
-  final double textSize;
-  final double readingSize;
-  const _FuriganaText({super.key, required this.reading, required this.text, this.textSize = 18, this.readingSize = 10});
+  const _FuriganaText({required this.reading, required this.text});
   @override
   Widget build(BuildContext context) => Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Text(reading, style: TextStyle(fontSize: readingSize, color: AppTheme.accentLight, height: 1.2)),
-      Text(text, style: TextStyle(fontSize: textSize, color: AppTheme.textPrimary, fontWeight: FontWeight.w500, height: 1.2)),
+      Text(reading, style: const TextStyle(fontSize: 10, color: AppTheme.accentLight, height: 1.2)),
+      Text(text, style: const TextStyle(fontSize: 18, color: AppTheme.textPrimary, fontWeight: FontWeight.w500, height: 1.2)),
     ],
   );
 }

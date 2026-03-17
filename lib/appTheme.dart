@@ -83,8 +83,8 @@ class AppTheme {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: accent,
-        foregroundColor: textPrimary,
+        backgroundColor: accent.withValues(alpha: 0.15),
+        foregroundColor: accent,
         minimumSize: const Size(double.infinity, 52),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         textStyle: GoogleFonts.notoSansJp(fontSize: 16, fontWeight: FontWeight.w600),

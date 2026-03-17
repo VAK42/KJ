@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:go_router/go_router.dart';
+import 'package:flutter/material.dart';
 import '../../appTheme.dart';
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -13,9 +13,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int _page = 0;
   final List<_OnboardPage> _pages = const [
     _OnboardPage(icon: '漢', title: 'Master Kanji', subtitle: 'Learn All 2,136 JLPT Kanji\nFrom N5 To N1, Step By Step!', color: AppTheme.accent),
-    _OnboardPage(icon: '字', title: 'JLPT Ready', subtitle: 'Kanji Organized By JLPT Level!\nTrack Your Progress At Each Stage!', color: Color(0xFF4CAF7D)),
-    _OnboardPage(icon: '覚', title: 'Quiz & Flashcards', subtitle: 'Reinforce Memory With Spaced\nRepetition & Adaptive Quizzes!', color: AppTheme.gold),
-    _OnboardPage(icon: '書', title: 'Write & Practice', subtitle: 'Practice Writing Strokes & Get\nInstant AI Handwriting Feedback!', color: Color(0xFFE06B4A)),
+    _OnboardPage(icon: '字', title: 'JLPT Ready', subtitle: 'Kanji Organized By JLPT Level!\nTrack Your Progress At Each Stage!', color: AppTheme.accent),
+    _OnboardPage(icon: '覚', title: 'Quiz & Flashcards', subtitle: 'Reinforce Memory With Spaced\nRepetition & Adaptive Quizzes!', color: AppTheme.accent),
+    _OnboardPage(icon: '書', title: 'Write & Practice', subtitle: 'Practice Writing Strokes & Get\nInstant AI Handwriting Feedback!', color: AppTheme.accent),
   ];
   @override
   void dispose() { _ctrl.dispose(); super.dispose(); }
@@ -64,16 +64,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: _page == _pages.length - 1
-                    ? ElevatedButton(
-                        onPressed: _finish,
-                        style: ElevatedButton.styleFrom(backgroundColor: _pages[_page].color),
-                        child: const Text('Get Started'),
-                      )
-                    : ElevatedButton(
-                        onPressed: () => _ctrl.nextPage(duration: const Duration(milliseconds: 400), curve: Curves.easeInOut),
-                        style: ElevatedButton.styleFrom(backgroundColor: _pages[_page].color),
-                        child: const Text('Next'),
-                      ),
+                  ? ElevatedButton(
+                    onPressed: _finish,
+                    child: const Text('Get Started'),
+                  )
+                  : ElevatedButton(
+                    onPressed: () => _ctrl.nextPage(duration: const Duration(milliseconds: 400), curve: Curves.easeInOut),
+                    child: const Text('Next'),
+                  ),
               ),
             ],
           ),

@@ -1,8 +1,8 @@
 import 'dart:convert';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/kanjiModel.dart';
+import 'package:flutter/services.dart';
 import '../models/radicalModel.dart';
+import '../models/kanjiModel.dart';
 final kanjiDataProvider = FutureProvider<Map<String, List<KanjiModel>>>((ref) async {
   final jsonStr = await rootBundle.loadString('assets/kanjiData.json');
   final jsonMap = json.decode(jsonStr) as Map<String, dynamic>;

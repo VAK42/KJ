@@ -1,12 +1,12 @@
-import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:stroke_order_animator/stroke_order_animator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:stroke_order_animator/stroke_order_animator.dart';
-import '../../appTheme.dart';
-import '../../data/kanjiData.dart';
-import '../../models/kanjiModel.dart';
+import 'package:flutter/material.dart';
 import '../../widgets/furiganaText.dart';
+import '../../models/kanjiModel.dart';
+import '../../data/kanjiData.dart';
+import '../../appTheme.dart';
 class KanjiDetailScreen extends ConsumerWidget {
   final String character;
   const KanjiDetailScreen({super.key, required this.character});
@@ -39,18 +39,29 @@ class _DetailBody extends StatefulWidget {
 }
 class _DetailBodyState extends State<_DetailBody> with TickerProviderStateMixin {
   StrokeOrderAnimationController? _strokeCtrl;
+  String _errorMsg = '';
   @override
   void initState() {
     super.initState();
     _loadStrokeOrder();
   }
   Future<void> _loadStrokeOrder() async {
+    setState(() => _errorMsg = '');
     try {
-      final code = widget.kanji.unicode.toLowerCase().padLeft(5, '0');
-      final res = await Dio().get('https://raw.githubusercontent.com/KanjiVG/kanjivg/master/kanji/$code.svg');
-      final ctrl = StrokeOrderAnimationController(StrokeOrder(res.data as String), this, onQuizCompleteCallback: (_) {});
+      final jsonStr = await downloadStrokeOrder(widget.kanji.character, http.Client());
+      final ctrl = StrokeOrderAnimationController(
+        StrokeOrder(jsonStr),
+        this,
+        strokeColor: AppTheme.textPrimary,
+        outlineColor: AppTheme.border,
+        hintColor: AppTheme.accent,
+        onQuizCompleteCallback: (_) {},
+      );
       if (mounted) setState(() => _strokeCtrl = ctrl);
-    } catch (_) {}
+    } catch (e) {
+      if (mounted) setState(() => _errorMsg = 'No Stroke Data!');
+      debugPrint('StrokeOrder Error: $e');
+    }
   }
   @override
   void dispose() {
@@ -79,14 +90,14 @@ class _DetailBodyState extends State<_DetailBody> with TickerProviderStateMixin 
         children: [
           Center(
             child: Container(
-              width: 140,
-              height: 140,
+              width: 180,
+              height: 180,
               decoration: BoxDecoration(
                 gradient: RadialGradient(colors: [widget.levelColor.withValues(alpha: 0.15), Colors.transparent]),
                 shape: BoxShape.circle,
               ),
               child: Center(
-                child: Text(widget.kanji.character, style: const TextStyle(fontSize: 88, color: AppTheme.textPrimary, fontWeight: FontWeight.w700)),
+                child: Text(widget.kanji.character, style: const TextStyle(fontSize: 80, color: AppTheme.textPrimary, fontWeight: FontWeight.w700)),
               ),
             ),
           ),
@@ -104,13 +115,22 @@ class _DetailBodyState extends State<_DetailBody> with TickerProviderStateMixin 
           const _SectionTitle(title: 'Stroke Order'),
           const SizedBox(height: 12),
           Container(
-            height: 200,
+            height: 250,
             width: double.infinity,
             alignment: Alignment.center,
             decoration: BoxDecoration(color: AppTheme.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.border)),
             child: _strokeCtrl != null
-                ? StrokeOrderAnimator(_strokeCtrl!, size: const Size(160, 160))
-                : const Text('Loading Stroke Order...', style: TextStyle(color: AppTheme.textMuted)),
+               ? StrokeOrderAnimator(_strokeCtrl!, size: const Size(200, 200))
+               : _errorMsg.isNotEmpty
+                   ? Column(
+                       mainAxisAlignment: MainAxisAlignment.center,
+                       children: [
+                         Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: Text(_errorMsg, style: const TextStyle(color: AppTheme.error, fontSize: 12), textAlign: TextAlign.center)),
+                         const SizedBox(height: 12),
+                         ElevatedButton(onPressed: _loadStrokeOrder, child: const Text('Retry')),
+                       ],
+                     )
+                   : const Text('Loading Stroke Order...', style: TextStyle(color: AppTheme.textMuted)),
           ),
           if (_strokeCtrl != null) ...[
             const SizedBox(height: 12),
@@ -151,7 +171,6 @@ class _DetailBodyState extends State<_DetailBody> with TickerProviderStateMixin 
             onPressed: () => context.push('/home/writing/${widget.kanji.character}'),
             icon: const Icon(Icons.edit_rounded, size: 18),
             label: const Text('Practice Writing'),
-            style: ElevatedButton.styleFrom(backgroundColor: widget.levelColor),
           ),
         ],
       ),

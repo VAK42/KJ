@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../appTheme.dart';
+import 'package:flutter/material.dart';
 import '../models/quizResultModel.dart';
+import '../appTheme.dart';
 class StreakChart extends StatelessWidget {
   final List<QuizResultModel> results;
   const StreakChart({super.key, required this.results});
   @override
   Widget build(BuildContext context) {
-    if (results.isEmpty) return const Center(child: Text('No Quiz Data Yet', style: TextStyle(color: AppTheme.textMuted)));
+    if (results.isEmpty) return const Center(child: Text('No Quiz Data Yet!', style: TextStyle(color: AppTheme.textMuted)));
     final recent = results.length > 10 ? results.sublist(results.length - 10) : results;
     final spots = List.generate(recent.length, (i) => FlSpot(i.toDouble(), recent[i].percentage * 100));
     return LineChart(

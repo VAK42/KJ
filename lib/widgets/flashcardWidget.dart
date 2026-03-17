@@ -17,10 +17,7 @@ class _FlashcardWidgetState extends State<FlashcardWidget> with SingleTickerProv
   void initState() {
     super.initState();
     _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
-    _anim = TweenSequence([
-      TweenSequenceItem(tween: Tween(begin: 0.0, end: -1.5708), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: 1.5708, end: 0.0), weight: 1),
-    ]).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
+    _anim = Tween<double>(begin: 0.0, end: 3.14159265).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
   }
   @override
   void dispose() {
@@ -59,12 +56,12 @@ class _FlashcardWidgetState extends State<FlashcardWidget> with SingleTickerProv
               boxShadow: const [BoxShadow(color: AppTheme.accentGlow, blurRadius: 24, spreadRadius: 0)],
             ),
             child: isBack
-                ? Transform(
-                    alignment: Alignment.center,
-                    transform: Matrix4.identity()..rotateY(3.1416),
-                    child: _BackContent(meaning: widget.backMeaning, onReading: widget.backOnReading, kunReading: widget.backKunReading),
-                  )
-                : _FrontContent(character: widget.frontText),
+              ? Transform(
+                alignment: Alignment.center,
+                transform: Matrix4.identity()..rotateY(3.1416),
+                child: _BackContent(meaning: widget.backMeaning, onReading: widget.backOnReading, kunReading: widget.backKunReading),
+              )
+              : _FrontContent(character: widget.frontText),
           ),
         );
       },
@@ -123,7 +120,7 @@ class _ReadingRow extends StatelessWidget {
           child: Text(label, style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w600)),
         ),
         const SizedBox(width: 8),
-        Text(value, style: const TextStyle(fontSize: 16, color: AppTheme.textPrimary)),
+        Expanded(child: Text(value, style: const TextStyle(fontSize: 16, color: AppTheme.textPrimary))),
       ],
     ),
   );

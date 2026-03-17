@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../appTheme.dart';
+import 'package:flutter/material.dart';
 import '../../data/kanjiData.dart';
+import '../../appTheme.dart';
 class RadicalListScreen extends ConsumerWidget {
   const RadicalListScreen({super.key});
   @override
@@ -28,6 +28,7 @@ class RadicalListScreen extends ConsumerWidget {
                 child: Text('$strokes Stroke${strokes == 1 ? '' : 's'}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.textMuted, letterSpacing: 1.2)),
               ),
               Wrap(
+                alignment: WrapAlignment.center,
                 spacing: 8,
                 runSpacing: 8,
                 children: group.map((r) => Container(

@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../appTheme.dart';
+import 'package:flutter/material.dart';
 import '../../providers/dashboardProvider.dart';
 import '../../widgets/streakChart.dart';
+import '../../appTheme.dart';
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
   @override

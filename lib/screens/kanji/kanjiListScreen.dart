@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../appTheme.dart';
+import 'package:flutter/material.dart';
 import '../../providers/kanjiProvider.dart';
+import '../../widgets/shimmerLoader.dart';
 import '../../widgets/kanjiCard.dart';
 import '../../widgets/searchBox.dart';
-import '../../widgets/shimmerLoader.dart';
+import '../../appTheme.dart';
 final _levelColors = {
   'N5': AppTheme.jlptColors[0], 'N4': AppTheme.jlptColors[1],
   'N3': AppTheme.jlptColors[2], 'N2': AppTheme.jlptColors[3], 'N1': AppTheme.jlptColors[4],
@@ -29,7 +29,7 @@ class _KanjiListScreenState extends ConsumerState<KanjiListScreen> {
         actions: [
           IconButton(
             icon: Icon(isGrid ? Icons.view_list_rounded : Icons.grid_view_rounded, color: AppTheme.textSecondary),
-            onPressed: () => ref.read(viewModeProvider.notifier).state = !isGrid,
+            onPressed: () => ref.read(viewModeProvider.notifier).toggle(),
           ),
         ],
       ),
@@ -39,7 +39,7 @@ class _KanjiListScreenState extends ConsumerState<KanjiListScreen> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: SearchBox(
-                onChanged: (v) => ref.read(searchQueryProvider.notifier).state = v,
+                onChanged: (v) => ref.read(searchQueryProvider.notifier).updateQuery(v),
                 hintText: 'Search ${widget.level} Kanji...',
               ),
             ),
@@ -48,33 +48,33 @@ class _KanjiListScreenState extends ConsumerState<KanjiListScreen> {
             loading: () => const SliverToBoxAdapter(child: ShimmerGrid()),
             error: (e, _) => SliverToBoxAdapter(child: Padding(padding: const EdgeInsets.all(20), child: Text('Error: $e', style: const TextStyle(color: AppTheme.error)))),
             data: (list) => isGrid
-                ? SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    sliver: SliverGrid(
-                      delegate: SliverChildBuilderDelegate(
-                        (_, i) => KanjiCard(
-                          kanji: list[i],
-                          levelColor: color,
-                          onTap: () => context.push('/home/kanji/${widget.level}/detail/${list[i].character}'),
-                        ),
-                        childCount: list.length,
-                      ),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4, childAspectRatio: 0.88, crossAxisSpacing: 10, mainAxisSpacing: 10),
+              ? SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                sliver: SliverGrid(
+                  delegate: SliverChildBuilderDelegate(
+                    (_, i) => KanjiCard(
+                      kanji: list[i],
+                      levelColor: color,
+                      onTap: () => context.push('/home/kanji/${widget.level}/detail/${list[i].character}'),
                     ),
-                  )
-                : SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (_, i) => KanjiListTile(
-                          kanji: list[i],
-                          levelColor: color,
-                          onTap: () => context.push('/home/kanji/${widget.level}/detail/${list[i].character}'),
-                        ),
-                        childCount: list.length,
-                      ),
-                    ),
+                    childCount: list.length,
                   ),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4, childAspectRatio: 0.88, crossAxisSpacing: 10, mainAxisSpacing: 10),
+                ),
+              )
+              : SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (_, i) => KanjiListTile(
+                      kanji: list[i],
+                      levelColor: color,
+                      onTap: () => context.push('/home/kanji/${widget.level}/detail/${list[i].character}'),
+                    ),
+                    childCount: list.length,
+                  ),
+                ),
+              ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 40)),
         ],
